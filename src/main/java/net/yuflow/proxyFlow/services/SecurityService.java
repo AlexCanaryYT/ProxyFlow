@@ -7,6 +7,9 @@ import org.slf4j.Logger;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -63,28 +66,45 @@ public class SecurityService {
 
     private VpnCheckResult performApiCheck(String ipAddress) {
         String apiKey = configManager.getVpnCheckApiKey();
-        if (apiKey == null || apiKey.isEmpty() || apiKey.equals("API KEY")) {
+        if (apiKey == null || apiKey.isBlank() || "API KEY".equalsIgnoreCase(apiKey.trim())
+                || "YOUR_API_KEY_HERE".equalsIgnoreCase(apiKey.trim())) {
+            apiKey = System.getenv("PROXYFLOW_PROXYCHECK_API_KEY");
+        }
+        if (apiKey == null || apiKey.isBlank() || "API KEY".equalsIgnoreCase(apiKey.trim())
+                || "YOUR_API_KEY_HERE".equalsIgnoreCase(apiKey.trim())) {
             return new VpnCheckResult(false, false, null);
         }
 
         try {
-            URL url = new URL("https://proxycheck.io/v2/" + ipAddress + "?key=" + apiKey + "&vpn=1");
+            URL url = new URL("https://proxycheck.io/v2/" + ipAddress
+                    + "?key=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8)
+                    + "&vpn=1&asn=1");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(2000);
             connection.setReadTimeout(2000);
 
             if (connection.getResponseCode() == 200) {
-                JsonObject response = new Gson().fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
+                JsonObject response;
+                try (InputStreamReader reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)) {
+                    response = new Gson().fromJson(reader, JsonObject.class);
+                } finally {
+                    connection.disconnect();
+                }
                 if (response.has(ipAddress)) {
                     JsonObject ipInfo = response.getAsJsonObject(ipAddress);
                     boolean isVpn = ipInfo.has("proxy") && "yes".equals(ipInfo.get("proxy").getAsString());
                     String type = ipInfo.has("type") ? ipInfo.get("type").getAsString() : "unknown";
                     boolean isHosting = "hosting".equalsIgnoreCase(type);
-                    String country = ipInfo.has("isocode") ? ipInfo.get("isocode").getAsString() : null;
+                    String country = ipInfo.has("isocode") && !ipInfo.get("isocode").isJsonNull()
+                            ? ipInfo.get("isocode").getAsString().trim().toUpperCase(Locale.ROOT)
+                            : null;
 
                     return new VpnCheckResult(isVpn, isHosting, country);
                 }
+                connection.disconnect();
+            } else {
+                connection.disconnect();
             }
         } catch (Exception e) {
             logger.warn("VPN API check failed for IP " + ipAddress, e);

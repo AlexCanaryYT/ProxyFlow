@@ -70,7 +70,7 @@ Communicate with your team across all servers:
 2. Place the file into the `plugins` folder of your Velocity Proxy.
 3. **Important:** Ensure **Java 21** is installed.
 4. Restart the proxy.
-5. Add your API key to `config.yml` and configure the Discord Webhooks.
+5. Set the ProxyCheck API key as `PROXYFLOW_PROXYCHECK_API_KEY` in the proxy environment (or in the runtime plugin config) and configure the Discord Webhooks. Do not commit a real API key.
 
 ---
 
@@ -79,6 +79,8 @@ Communicate with your team across all servers:
 ```yaml
 maintenance:
   enabled: false
+  # Set false if another plugin should handle /maintenance on a backend server.
+  command-enabled: true
   motd: "               &4&lServer is in maintenance!\n    &lPlease try again later"
   kick-message: "&cThis server is currently in maintenance"
   bypass-permission: "proxyflow.maintenance.bypass"
@@ -107,6 +109,7 @@ security:
   vpn-check:
     enabled: true
     api-key: "YOUR_API_KEY_HERE"
+    # Keep real keys out of Git. You can set PROXYFLOW_PROXYCHECK_API_KEY in the proxy environment instead.
     # How long (in minutes) to cache an IP as "safe"? (Saves API requests)
     cache-duration-minutes: 60
     bypass-permission: "proxyflow.security.vpn.bypass"
@@ -116,6 +119,8 @@ security:
 
   country-block:
     enabled: false
+    # blacklist denies listed countries; whitelist allows only listed countries.
+    # In whitelist mode, a failed lookup or missing country code denies the connection.
     mode: "blacklist"
     countries:
       - "US"
@@ -147,7 +152,7 @@ staffchat:
 | Command | Permission | Description |
 | --- | --- | --- |
 | `/proxyflow reload` | `proxyflow.command.reload` | Reloads the configuration. |
-| `/maintenance` | `proxyflow.command.maintenance` | Toggles maintenance mode on/off. |
+| `/maintenance` | `proxyflow.command.maintenance` | Toggles maintenance mode on/off. Registration can be disabled with `maintenance.command-enabled: false`. |
 | `/staffchat` | `proxyflow.staffchat` | Sends a message or toggles staff chat. |
 | `/whitelist <on/off/add/remove>` | `proxyflow.command.whitelist` | Manages the whitelist. |
 | `/security <blockserverips/notify>` | `proxyflow.command.security` | Manages security settings live. |

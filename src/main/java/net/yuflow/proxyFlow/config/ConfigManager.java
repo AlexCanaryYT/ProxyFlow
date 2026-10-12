@@ -59,6 +59,7 @@ public class ConfigManager {
     }
 
     public boolean isMaintenanceEnabled() { return this.root.node("maintenance", "enabled").getBoolean(false); }
+    public boolean isMaintenanceCommandEnabled() { return this.root.node("maintenance", "command-enabled").getBoolean(true); }
     public void setMaintenance(boolean enabled) {
         try { this.root.node("maintenance", "enabled").set(enabled); saveConfig(); }
         catch (SerializationException e) { logger.error("Error saving maintenance state", e); }

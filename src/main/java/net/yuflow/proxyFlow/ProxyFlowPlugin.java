@@ -61,7 +61,11 @@ public class ProxyFlowPlugin {
 
         CommandManager cm = this.server.getCommandManager();
         cm.register(cm.metaBuilder("proxyflow").aliases("pf").build(), new ReloadCommand(this.configManager));
-        cm.register(cm.metaBuilder("maintenance").build(), new MaintenanceCommand(this.configManager, this.server, this.discordService));
+        if (this.configManager.isMaintenanceCommandEnabled()) {
+            cm.register(cm.metaBuilder("maintenance").build(), new MaintenanceCommand(this.configManager, this.server, this.discordService));
+        } else {
+            this.logger.info("ProxyFlow /maintenance command registration is disabled by configuration.");
+        }
         cm.register(cm.metaBuilder("whitelist").aliases("wl").build(), new WhitelistCommand(this.configManager));
         cm.register(cm.metaBuilder("security").aliases("sec").build(), new SecurityCommand(this.configManager));
         cm.register(cm.metaBuilder("staffchat").aliases("sc").build(), new StaffChatCommand(this.staffChatManager));

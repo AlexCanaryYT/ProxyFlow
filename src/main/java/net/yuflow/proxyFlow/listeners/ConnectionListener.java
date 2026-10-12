@@ -19,8 +19,9 @@ import net.yuflow.proxyFlow.services.DiscordService;
 import net.yuflow.proxyFlow.services.SecurityService;
 import org.slf4j.Logger;
 
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -92,13 +93,13 @@ public class ConnectionListener {
     }
 
     private void processSecurityResult(PreLoginEvent event, SecurityService.VpnCheckResult result, String username, String ipAddress) {
-        if (configManager.isVpnCheckEnabled() && !configManager.isPlayerVpnWhitelisted(username)) {
+        if (configManager.isVpnCheckEnabled() && !configManager.isPlayerVpnWhitelisted(username) && result != null) {
             if (result.isVpn && !event.getResult().isAllowed()) return;
 
             if (result.isVpn || (configManager.isBlockServerIps() && result.isHosting)) {
                 if (!configManager.isVpnCheckEnabled()) return;
 
-                this.deny(event, "VPN/Proxy connections are not allowed.");
+                this.deny(event, "Conexión no permitida.");
                 notifyAdmins(username, ipAddress, "VPN/Proxy/Hosting");
                 if (configManager.isDiscordNotifyVpnBlock()) {
                     discordService.sendNotification("Security Block",
@@ -108,13 +109,27 @@ public class ConnectionListener {
             }
         }
 
-        if (configManager.isCountryBlockEnabled() && result.countryCode != null) {
+        if (configManager.isCountryBlockEnabled()) {
             String mode = configManager.getCountryBlockMode();
-            List<String> countries = configManager.getCountryList();
-            boolean blocked = "blacklist".equalsIgnoreCase(mode) ? countries.contains(result.countryCode) : !countries.contains(result.countryCode);
+            Set<String> countries = configManager.getCountryList().stream()
+                    .map(country -> country.trim().toUpperCase(Locale.ROOT))
+                    .filter(country -> !country.isEmpty())
+                    .collect(java.util.stream.Collectors.toSet());
+            String countryCode = result == null || result.countryCode == null || result.countryCode.isBlank()
+                    ? null
+                    : result.countryCode.trim().toUpperCase(Locale.ROOT);
 
-            if (blocked) {
-                this.deny(event, "Connections from your country are not allowed.");
+            if ("whitelist".equalsIgnoreCase(mode)) {
+                if (countryCode == null) {
+                    this.deny(event, "No se pudo verificar tu ubicación.");
+                    return;
+                }
+                if (!countries.contains(countryCode)) {
+                    this.deny(event, "País no permitido.");
+                    return;
+                }
+            } else if (countryCode != null && countries.contains(countryCode)) {
+                this.deny(event, "País no permitido.");
             }
         }
     }

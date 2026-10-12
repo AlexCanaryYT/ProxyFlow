@@ -1,5 +1,7 @@
 maintenance:
   enabled: false
+  # Set false when another plugin (for example, a backend Paper plugin) owns /maintenance.
+  command-enabled: true
   motd: "&4&lServer is in maintenance!\n&lPlease try again later"
   kick-message: "&cThis server is currently in maintenance"
   bypass-permission: "proxyflow.maintenance.bypass"
@@ -34,6 +36,8 @@ security:
 
   country-block:
     enabled: false
+    # blacklist denies listed countries; whitelist allows only listed countries.
+    # In whitelist mode, a failed lookup or missing country code denies the connection.
     mode: "blacklist"
     countries: []
 
