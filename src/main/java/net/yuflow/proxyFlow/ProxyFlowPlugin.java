@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 @Plugin(
         id = "proxyflow",
         name = "ProxyFlow",
-        version = "1.4.0",
+        version = "1.4.1",
         description = "Advanced Security & Utility Plugin",
         authors = {"Yu_Dino"}
 )
@@ -92,7 +92,7 @@ public class ProxyFlowPlugin {
         this.logger.info("|   |    |   |  | ||       ||   _   |  |   |  |   |    |       ||       ||   _   |   |     |  |   |     +++*++++++++  ++++++++****************************");
         this.logger.info("|___|    |___|  |_||_______||__| |__|  |___|  |___|    |_______||_______||__| |__|    |___|   |___|      ++++++++++++   +++++*****************************");
         this.logger.info("                                                                                                          *+++++++++++* +++****************");
-        this.logger.info("                          ProxyFlow-Velocity v1.4.0 by Yu_Dino                                              +++++++++++++++*************************");
+        this.logger.info("                          ProxyFlow-Velocity v1.4.1 by Yu_Dino                                              +++++++++++++++*************************");
     }
 
     @Subscribe

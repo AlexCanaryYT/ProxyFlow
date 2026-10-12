@@ -1,6 +1,7 @@
 maintenance:
   enabled: false
   # Set false when another plugin (for example, a backend Paper plugin) owns /maintenance.
+  # Restart Velocity after changing this setting because proxy commands register at startup.
   command-enabled: true
   motd: "&4&lServer is in maintenance!\n&lPlease try again later"
   kick-message: "&cThis server is currently in maintenance"

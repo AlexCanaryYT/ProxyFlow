@@ -1,7 +1,7 @@
 ![ProxyFlow](https://i.imgur.com/nfwkxNN.png) 
 # The All-in-One Security System for your Velocity Proxy
 
-**ProxyFlow** is the ultimate security solution for Minecraft server networks based on Velocity. Version 1.4.0 introduces massive performance improvements through **Asynchronous Processing**, **Caching**, and **Database Support**.
+**ProxyFlow** is the ultimate security solution for Minecraft server networks based on Velocity. Version 1.4.1 includes maintenance command registration control and safer country whitelist handling.
 
 It proactively protects your network from bot attacks, VPN bypasses, and exploits while providing your team with essential tools like a global StaffChat and Discord integration.
 
@@ -66,7 +66,7 @@ Communicate with your team across all servers:
 
 ## Installation
 
-1. Download the `ProxyFlow-1.4.0+dependencies.jar`.
+1. Download or build the `ProxyFlow-1.4.1+dependencies.jar`.
 2. Place the file into the `plugins` folder of your Velocity Proxy.
 3. **Important:** Ensure **Java 21** is installed.
 4. Restart the proxy.
@@ -80,6 +80,7 @@ Communicate with your team across all servers:
 maintenance:
   enabled: false
   # Set false if another plugin should handle /maintenance on a backend server.
+  # Restart Velocity after changing this setting.
   command-enabled: true
   motd: "               &4&lServer is in maintenance!\n    &lPlease try again later"
   kick-message: "&cThis server is currently in maintenance"
